@@ -3,6 +3,7 @@ package actions
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -79,6 +80,31 @@ func NewClient(ctx context.Context, githubConfigURL string, creds *ActionsAuth, 
 		userAgent:       userAgent,
 	}
 
+	retryClient := retryablehttp.NewClient()
+
+	if ac.RetryMax != nil {
+		retryClient.RetryMax = *ac.RetryMax
+	}
+
+	if ac.RetryWaitMax != nil {
+		retryClient.RetryWaitMax = *ac.RetryWaitMax
+	}
+
+	httpClient := retryClient.StandardClient()
+	httpClient.Timeout = 10 * time.Second
+
+	// Add custom root CA to transport
+	if creds.CACertPool != nil {
+		transport := &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: creds.CACertPool,
+			},
+		}
+		httpClient.Transport = transport
+	}
+
+	ac.Client = httpClient
+
 	rt, err := ac.getRunnerRegistrationToken(ctx, githubConfigURL, *creds)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get runner registration token: %w", err)
@@ -121,9 +147,7 @@ func (c *Client) GetRunnerScaleSet(ctx context.Context, runnerScaleSetName strin
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -165,9 +189,7 @@ func (c *Client) GetRunnerScaleSetById(ctx context.Context, runnerScaleSetId int
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +204,6 @@ func (c *Client) GetRunnerScaleSetById(ctx context.Context, runnerScaleSetId int
 		return nil, err
 	}
 	return runnerScaleSet, nil
-
 }
 
 func (c *Client) GetRunnerGroupByName(ctx context.Context, runnerGroup string) (*RunnerGroup, error) {
@@ -204,9 +225,7 @@ func (c *Client) GetRunnerGroupByName(ctx context.Context, runnerGroup string) (
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -260,9 +279,7 @@ func (c *Client) CreateRunnerScaleSet(ctx context.Context, runnerScaleSet *Runne
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -302,9 +319,7 @@ func (c *Client) UpdateRunnerScaleSet(ctx context.Context, runnerScaleSetId int,
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -340,9 +355,7 @@ func (c *Client) DeleteRunnerScaleSet(ctx context.Context, runnerScaleSetId int)
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return err
 	}
@@ -372,9 +385,7 @@ func (c *Client) GetMessage(ctx context.Context, messageQueueUrl, messageQueueAc
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -425,9 +436,7 @@ func (c *Client) DeleteMessage(ctx context.Context, messageQueueUrl, messageQueu
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return err
 	}
@@ -497,9 +506,7 @@ func (c *Client) doSessionRequest(ctx context.Context, method, url string, reque
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return err
 	}
@@ -542,9 +549,7 @@ func (c *Client) AcquireJobs(ctx context.Context, runnerScaleSetId int, messageQ
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -581,9 +586,7 @@ func (c *Client) GetAcquirableJobs(ctx context.Context, runnerScaleSetId int) (*
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -629,9 +632,7 @@ func (c *Client) GenerateJitRunnerConfig(ctx context.Context, jitRunnerSetting *
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -667,9 +668,7 @@ func (c *Client) GetRunner(ctx context.Context, runnerId int64) (*RunnerReferenc
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -705,9 +704,7 @@ func (c *Client) GetRunnerByName(ctx context.Context, runnerName string) (*Runne
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -752,9 +749,7 @@ func (c *Client) RemoveRunner(ctx context.Context, runnerId int64) error {
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	httpClient := c.getHTTPClient()
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return err
 	}
@@ -804,7 +799,7 @@ func (c *Client) getRunnerRegistrationToken(ctx context.Context, githubConfigUrl
 
 	c.logger.Info("getting runner registration token", "registrationTokenURL", registrationTokenURL)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -860,7 +855,7 @@ func (c *Client) fetchAccessToken(ctx context.Context, gitHubConfigURL string, c
 
 	c.logger.Info("getting access token for GitHub App auth", "accessTokenURL", accessTokenURL.String())
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -920,7 +915,7 @@ func (c *Client) getActionsServiceAdminConnection(ctx context.Context, rt *regis
 
 	c.logger.Info("getting Actions tenant URL and JWT", "registrationURL", registrationURL.String())
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -1010,24 +1005,6 @@ func createJWTForGitHubApp(appAuth *GitHubAppAuth) (string, error) {
 	}
 
 	return token.SignedString(privateKey)
-}
-
-func (c *Client) getHTTPClient() *http.Client {
-	if c.Client != nil {
-		return c.Client
-	}
-
-	retryClient := retryablehttp.NewClient()
-
-	if c.RetryMax != nil {
-		retryClient.RetryMax = *c.RetryMax
-	}
-
-	if c.RetryWaitMax != nil {
-		retryClient.RetryWaitMax = *c.RetryWaitMax
-	}
-
-	return retryClient.StandardClient()
 }
 
 func unmarshalBody(response *http.Response, v interface{}) (err error) {

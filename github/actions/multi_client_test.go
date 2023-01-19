@@ -2,16 +2,25 @@ package actions
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/actions/actions-runner-controller/logging"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAddClient(t *testing.T) {
@@ -134,8 +143,7 @@ jQ97eJWiWtDcsMUhcZgoB5ydHcFlrBIn6oBcpge5
 	}
 }
 
-func TestCreateJWT(t *testing.T) {
-	key := `-----BEGIN RSA PRIVATE KEY-----
+const appPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIICWgIBAAKBgHXfRT9cv9UY9fAAD4+1RshpfSSZe277urfEmPfX3/Og9zJYRk//
 CZrJVD1CaBZDiIyQsNEzjta7r4UsqWdFOggiNN2E7ZTFQjMSaFkVgrzHqWuiaCBf
 /BjbKPn4SMDmTzHvIe7Nel76hBdCaVgu6mYCW5jmuSH5qz/yR1U1J/WJAgMBAAEC
@@ -151,13 +159,110 @@ O5x/9UKfbrc+KyzbAkAo97TfFC+mZhU1N5fFelaRu4ikPxlp642KRUSkOh8GEkNf
 jQ97eJWiWtDcsMUhcZgoB5ydHcFlrBIn6oBcpge5
 -----END RSA PRIVATE KEY-----`
 
+func TestCreateJWT(t *testing.T) {
 	auth := &GitHubAppAuth{
 		AppID:         123,
-		AppPrivateKey: key,
+		AppPrivateKey: appPrivateKey,
 	}
 	jwt, err := createJWTForGitHubApp(auth)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(jwt)
+}
+
+func TestServerWithSelfSignedCertificates(t *testing.T) {
+	ctx := context.Background()
+	logger, err := logging.NewLogger(logging.LogLevelError, logging.LogFormatText)
+	require.NoError(t, err)
+
+	// this handler is a very very barebones replica of actions api
+	// used during the creation of a a new client
+	h := func(w http.ResponseWriter, r *http.Request) {
+		// handle get registration token
+		if strings.HasSuffix(r.URL.Path, "/runners/registration-token") {
+			w.WriteHeader(http.StatusCreated)
+			w.Write([]byte(`{"token":"token"}`))
+			return
+		}
+
+		// handle getActionsServiceAdminConnection
+		if strings.HasSuffix(r.URL.Path, "/actions/runner-registration") {
+			claims := &jwt.RegisteredClaims{
+				IssuedAt:  jwt.NewNumericDate(time.Now().Add(-1 * time.Minute)),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Minute)),
+				Issuer:    "123",
+			}
+
+			token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+			privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(appPrivateKey))
+			require.NoError(t, err)
+			tokenString, err := token.SignedString(privateKey)
+			require.NoError(t, err)
+			w.Write([]byte(`{"url":"TODO","token":"` + tokenString + `"}`))
+			return
+		}
+
+		// handle calls to actions
+		w.Write([]byte(`{"count":0,"value":[]}`))
+	}
+
+	certPath := filepath.Join("testdata", "certificates", "server.crt")
+	keyPath := filepath.Join("testdata", "certificates", "server.key")
+
+	t.Run("client without ca certs", func(t *testing.T) {
+		server := startNewTLSTestServer(t, certPath, keyPath, http.HandlerFunc(h))
+		configURL := server.URL + "/my-org"
+
+		auth := &ActionsAuth{
+			Token: "token",
+		}
+		client, err := NewClient(ctx, configURL, auth, "test-agent", logger)
+		assert.Nil(t, client)
+		require.NotNil(t, err)
+
+		if runtime.GOOS == "linux" {
+			assert.True(t, errors.As(err, &x509.UnknownAuthorityError{}))
+		}
+
+		// on macOS we only get an untyped error from the system verifying the
+		// certificate
+		if runtime.GOOS == "darwin" {
+			assert.True(t, strings.HasSuffix(err.Error(), "certificate is not trusted"))
+		}
+	})
+
+	t.Run("client with ca certs", func(t *testing.T) {
+		server := startNewTLSTestServer(t, certPath, keyPath, http.HandlerFunc(h))
+		configURL := server.URL + "/my-org"
+
+		auth := &ActionsAuth{
+			Token: "token",
+		}
+
+		cert, err := ioutil.ReadFile(filepath.Join("testdata", "certificates", "rootCA.crt"))
+		require.NoError(t, err)
+
+		err = auth.AddCACertificatesFromMap(map[string][]byte{"cert": cert})
+		require.NoError(t, err)
+
+		client, err := NewClient(ctx, configURL, auth, "test-agent", logger)
+		require.NoError(t, err)
+		assert.NotNil(t, client)
+	})
+}
+
+func startNewTLSTestServer(t *testing.T, certPath, keyPath string, handler http.Handler) *httptest.Server {
+	server := httptest.NewUnstartedServer(handler)
+	t.Cleanup(func() {
+		server.Close()
+	})
+
+	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+	require.NoError(t, err)
+
+	server.TLS = &tls.Config{Certificates: []tls.Certificate{cert}}
+	server.StartTLS()
+
+	return server
 }

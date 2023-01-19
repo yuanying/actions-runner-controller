@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+	"crypto/x509"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -36,6 +37,66 @@ type ActionsAuth struct {
 
 	// GitHub PAT
 	Token string
+
+	// CA certificates necessary to access GitHub server
+	CACertPool *x509.CertPool
+}
+
+func AuthFromSecretData(data KubernetesSecretData) (*ActionsAuth, error) {
+	if len(data) == 0 {
+		return nil, fmt.Errorf("must provide secret data with either PAT or GitHub App Auth")
+	}
+
+	token := string(data["github_token"])
+	hasToken := len(token) > 0
+
+	appID := string(data["github_app_id"])
+	appInstallationID := string(data["github_app_installation_id"])
+	appPrivateKey := string(data["github_app_private_key"])
+	hasGitHubAppAuth := len(appID) > 0 && len(appInstallationID) > 0 && len(appPrivateKey) > 0
+
+	if hasToken && hasGitHubAppAuth {
+		return nil, fmt.Errorf("must provide secret with only PAT or GitHub App Auth to avoid ambiguity in client behavior")
+	}
+
+	if !hasToken && !hasGitHubAppAuth {
+		return nil, fmt.Errorf("neither PAT nor GitHub App Auth credentials provided in secret")
+	}
+
+	auth := &ActionsAuth{}
+
+	if hasToken {
+		auth.Token = token
+		return auth, nil
+	}
+
+	parsedAppID, err := strconv.ParseInt(appID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedAppInstallationID, err := strconv.ParseInt(appInstallationID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	auth.AppCreds = &GitHubAppAuth{AppID: parsedAppID, AppInstallationID: parsedAppInstallationID, AppPrivateKey: appPrivateKey}
+	return auth, nil
+}
+
+func (auth *ActionsAuth) AddCACertificatesFromMap(certs map[string][]byte) error {
+	if auth.CACertPool == nil {
+		auth.CACertPool = x509.NewCertPool()
+	}
+
+	for key, certData := range certs {
+		ok := auth.CACertPool.AppendCertsFromPEM(certData)
+		if !ok {
+			return fmt.Errorf("no certificates successfully parsed from key %s", key)
+		}
+	}
+
+	return nil
 }
 
 type ActionsClientKey struct {
@@ -122,43 +183,10 @@ func (m *multiClient) GetClientFor(ctx context.Context, githubConfigURL string, 
 type KubernetesSecretData map[string][]byte
 
 func (m *multiClient) GetClientFromSecret(ctx context.Context, githubConfigURL, namespace string, secretData KubernetesSecretData) (ActionsService, error) {
-	if len(secretData) == 0 {
-		return nil, fmt.Errorf("must provide secret data with either PAT or GitHub App Auth")
-	}
-
-	token := string(secretData["github_token"])
-	hasToken := len(token) > 0
-
-	appID := string(secretData["github_app_id"])
-	appInstallationID := string(secretData["github_app_installation_id"])
-	appPrivateKey := string(secretData["github_app_private_key"])
-	hasGitHubAppAuth := len(appID) > 0 && len(appInstallationID) > 0 && len(appPrivateKey) > 0
-
-	if hasToken && hasGitHubAppAuth {
-		return nil, fmt.Errorf("must provide secret with only PAT or GitHub App Auth to avoid ambiguity in client behavior")
-	}
-
-	if !hasToken && !hasGitHubAppAuth {
-		return nil, fmt.Errorf("neither PAT nor GitHub App Auth credentials provided in secret")
-	}
-
-	auth := ActionsAuth{}
-
-	if hasToken {
-		auth.Token = token
-		return m.GetClientFor(ctx, githubConfigURL, auth, namespace)
-	}
-
-	parsedAppID, err := strconv.ParseInt(appID, 10, 64)
+	auth, err := AuthFromSecretData(secretData)
 	if err != nil {
 		return nil, err
 	}
 
-	parsedAppInstallationID, err := strconv.ParseInt(appInstallationID, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	auth.AppCreds = &GitHubAppAuth{AppID: parsedAppID, AppInstallationID: parsedAppInstallationID, AppPrivateKey: appPrivateKey}
-	return m.GetClientFor(ctx, githubConfigURL, auth, namespace)
+	return m.GetClientFor(ctx, githubConfigURL, *auth, namespace)
 }

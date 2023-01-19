@@ -348,7 +348,7 @@ func (r *AutoscalingListenerReconciler) createListenerPod(ctx context.Context, a
 	var proxyEnvs []corev1.EnvVar
 	if autoscalingListener.Spec.Proxy != nil {
 		var httpUserInfo userInfoFunc
-		if autoscalingListener.Spec.Proxy.HTTP != nil {
+		if autoscalingListener.Spec.Proxy.HTTP != nil && len(autoscalingListener.Spec.Proxy.HTTP.CredentialSecretRef) != 0 {
 			httpUserInfo = func() (*url.Userinfo, error) {
 				return getProxyUserInfoBySecretNamespacedName(ctx, r.Client, types.NamespacedName{
 					Name:      autoscalingListener.Spec.Proxy.HTTP.CredentialSecretRef,
@@ -358,7 +358,7 @@ func (r *AutoscalingListenerReconciler) createListenerPod(ctx context.Context, a
 		}
 
 		var httpsUserInfo userInfoFunc
-		if autoscalingListener.Spec.Proxy.HTTPS != nil {
+		if autoscalingListener.Spec.Proxy.HTTPS != nil && len(autoscalingListener.Spec.Proxy.HTTPS.CredentialSecretRef) != 0 {
 			httpsUserInfo = func() (*url.Userinfo, error) {
 				return getProxyUserInfoBySecretNamespacedName(ctx, r.Client, types.NamespacedName{
 					Name:      autoscalingListener.Spec.Proxy.HTTPS.CredentialSecretRef,

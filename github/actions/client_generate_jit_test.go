@@ -29,6 +29,7 @@ func TestGenerateJitRunnerConfig(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,

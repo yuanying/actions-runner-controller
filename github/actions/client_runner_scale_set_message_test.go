@@ -32,6 +32,7 @@ func TestGetMessage(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -84,6 +85,7 @@ func TestGetMessage(t *testing.T) {
 		retryMax := 1
 		retryWaitMax := 1 * time.Nanosecond
 		actionsClient := actions.Client{
+			Client:                   &http.Client{},
 			ActionsServiceURL:        &s.URL,
 			ActionsServiceAdminToken: &token,
 			RetryMax:                 &retryMax,
@@ -101,6 +103,7 @@ func TestGetMessage(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -124,6 +127,7 @@ func TestGetMessage(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -145,6 +149,7 @@ func TestGetMessage(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -171,6 +176,7 @@ func TestDeleteMessage(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -188,6 +194,7 @@ func TestDeleteMessage(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -208,6 +215,7 @@ func TestDeleteMessage(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -257,6 +265,7 @@ func TestDeleteMessage(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,

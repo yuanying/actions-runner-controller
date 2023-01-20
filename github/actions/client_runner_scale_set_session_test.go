@@ -53,6 +53,7 @@ func TestCreateMessageSession(t *testing.T) {
 		retryWaitMax := 1 * time.Microsecond
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &srv.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -98,6 +99,7 @@ func TestCreateMessageSession(t *testing.T) {
 		retryWaitMax := 1 * time.Microsecond
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &srv.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -148,6 +150,7 @@ func TestCreateMessageSession(t *testing.T) {
 		wantRetries := retryMax + 1
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &srv.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -187,6 +190,7 @@ func TestDeleteMessageSession(t *testing.T) {
 		wantRetries := retryMax + 1
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &srv.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -228,6 +232,7 @@ func TestRefreshMessageSession(t *testing.T) {
 		wantRetries := retryMax + 1
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &srv.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,

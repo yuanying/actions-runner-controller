@@ -80,18 +80,7 @@ func NewClient(ctx context.Context, githubConfigURL string, creds *ActionsAuth, 
 		userAgent:       userAgent,
 	}
 
-	retryClient := retryablehttp.NewClient()
-
-	if ac.RetryMax != nil {
-		retryClient.RetryMax = *ac.RetryMax
-	}
-
-	if ac.RetryWaitMax != nil {
-		retryClient.RetryWaitMax = *ac.RetryWaitMax
-	}
-
-	httpClient := retryClient.StandardClient()
-	httpClient.Timeout = 10 * time.Second
+	httpClient := newHTTPClient(ac)
 
 	// Add custom root CA to transport
 	if creds.CACertPool != nil {
@@ -126,6 +115,22 @@ func NewClient(ctx context.Context, githubConfigURL string, creds *ActionsAuth, 
 	}
 
 	return ac, nil
+}
+
+func newHTTPClient(ac *Client) *http.Client {
+	retryClient := retryablehttp.NewClient()
+
+	if ac.RetryMax != nil {
+		retryClient.RetryMax = *ac.RetryMax
+	}
+
+	if ac.RetryWaitMax != nil {
+		retryClient.RetryWaitMax = *ac.RetryWaitMax
+	}
+
+	httpClient := retryClient.StandardClient()
+	httpClient.Timeout = 10 * time.Second
+	return httpClient
 }
 
 func (c *Client) GetRunnerScaleSet(ctx context.Context, runnerScaleSetName string) (*RunnerScaleSet, error) {

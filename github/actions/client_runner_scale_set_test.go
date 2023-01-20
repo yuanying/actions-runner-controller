@@ -32,6 +32,7 @@ func TestGetRunnerScaleSet(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -56,6 +57,7 @@ func TestGetRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -68,7 +70,6 @@ func TestGetRunnerScaleSet(t *testing.T) {
 		u := url.String()
 		expectedUrl := fmt.Sprintf("/_apis/runtime/runnerscalesets?name=%s&api-version=6.0-preview", scaleSetName)
 		assert.Equal(t, expectedUrl, u)
-
 	},
 	)
 
@@ -78,6 +79,7 @@ func TestGetRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -96,6 +98,7 @@ func TestGetRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -148,6 +151,7 @@ func TestGetRunnerScaleSet(t *testing.T) {
 			t.Fatalf("%v", err)
 		}
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -169,6 +173,7 @@ func TestGetRunnerScaleSet(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -178,7 +183,6 @@ func TestGetRunnerScaleSet(t *testing.T) {
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("GetRunnerScaleSet(%v) mismatch (-want +got):\n%s", scaleSetName, diff)
 		}
-
 	},
 	)
 
@@ -191,6 +195,7 @@ func TestGetRunnerScaleSet(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -204,7 +209,6 @@ func TestGetRunnerScaleSet(t *testing.T) {
 		if diff := cmp.Diff(wantErr.Error(), err.Error()); diff != "" {
 			t.Errorf("GetRunnerScaleSet(%v) mismatch (-want +got):\n%s", scaleSetName, diff)
 		}
-
 	},
 	)
 }
@@ -226,6 +230,7 @@ func TestGetRunnerScaleSetById(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -252,6 +257,7 @@ func TestGetRunnerScaleSetById(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -264,7 +270,6 @@ func TestGetRunnerScaleSetById(t *testing.T) {
 		u := url.String()
 		expectedUrl := fmt.Sprintf("/_apis/runtime/runnerscalesets/%d?api-version=6.0-preview", runnerScaleSet.Id)
 		assert.Equal(t, expectedUrl, u)
-
 	},
 	)
 
@@ -274,6 +279,7 @@ func TestGetRunnerScaleSetById(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -292,6 +298,7 @@ func TestGetRunnerScaleSetById(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -344,6 +351,7 @@ func TestGetRunnerScaleSetById(t *testing.T) {
 			t.Fatalf("%v", err)
 		}
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -368,6 +376,7 @@ func TestGetRunnerScaleSetById(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -377,7 +386,6 @@ func TestGetRunnerScaleSetById(t *testing.T) {
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("GetRunnerScaleSetById(%v) mismatch (-want +got):\n%s", runnerScaleSet.Id, diff)
 		}
-
 	},
 	)
 }
@@ -399,6 +407,7 @@ func TestCreateRunnerScaleSet(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -425,6 +434,7 @@ func TestCreateRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -437,7 +447,6 @@ func TestCreateRunnerScaleSet(t *testing.T) {
 		u := url.String()
 		expectedUrl := "/_apis/runtime/runnerscalesets?api-version=6.0-preview"
 		assert.Equal(t, expectedUrl, u)
-
 	},
 	)
 
@@ -448,6 +457,7 @@ func TestCreateRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -503,6 +513,7 @@ func TestCreateRunnerScaleSet(t *testing.T) {
 			t.Fatalf("%v", err)
 		}
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -533,6 +544,7 @@ func TestUpdateRunnerScaleSet(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -559,6 +571,7 @@ func TestUpdateRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -571,7 +584,6 @@ func TestUpdateRunnerScaleSet(t *testing.T) {
 		u := url.String()
 		expectedUrl := fmt.Sprintf("/_apis/runtime/runnerscalesets/%d?api-version=6.0-preview", runnerScaleSet.Id)
 		assert.Equal(t, expectedUrl, u)
-
 	},
 	)
 
@@ -581,6 +593,7 @@ func TestUpdateRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -601,6 +614,7 @@ func TestUpdateRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -655,6 +669,7 @@ func TestUpdateRunnerScaleSet(t *testing.T) {
 			t.Fatalf("%v", err)
 		}
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -679,6 +694,7 @@ func TestUpdateRunnerScaleSet(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -690,7 +706,6 @@ func TestUpdateRunnerScaleSet(t *testing.T) {
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("UpdateRunnerScaleSet(%v) mismatch (-want +got):\n%s", runnerScaleSet.Id, diff)
 		}
-
 	},
 	)
 }
@@ -707,6 +722,7 @@ func TestDeleteRunnerScaleSet(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -726,6 +742,7 @@ func TestDeleteRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -738,7 +755,6 @@ func TestDeleteRunnerScaleSet(t *testing.T) {
 		u := url.String()
 		expectedUrl := fmt.Sprintf("/_apis/runtime/runnerscalesets/%d?api-version=6.0-preview", runnerScaleSet.Id)
 		assert.Equal(t, expectedUrl, u)
-
 	},
 	)
 
@@ -748,6 +764,7 @@ func TestDeleteRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -768,6 +785,7 @@ func TestDeleteRunnerScaleSet(t *testing.T) {
 		}))
 		defer s.Close()
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -822,6 +840,7 @@ func TestDeleteRunnerScaleSet(t *testing.T) {
 			t.Fatalf("%v", err)
 		}
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,
@@ -846,6 +865,7 @@ func TestDeleteRunnerScaleSet(t *testing.T) {
 		defer s.Close()
 
 		actionsClient := actions.Client{
+			Client:                            &http.Client{},
 			ActionsServiceURL:                 &s.URL,
 			ActionsServiceAdminToken:          &token,
 			ActionsServiceAdminTokenExpiresAt: &tokenExpireAt,

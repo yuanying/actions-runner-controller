@@ -22,7 +22,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.14.0
 	github.com/stretchr/testify v1.8.0
-	github.com/teambition/rrule-go v1.8.0
+	github.com/teambition/rrule-go v1.8.2
 	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783

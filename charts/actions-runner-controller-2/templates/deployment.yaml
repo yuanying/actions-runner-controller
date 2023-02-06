@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "actions-runner-controller-2.labels" . | nindent 4 }}
+    actions.github.com/cluster-manager-role: {{ include "actions-runner-controller-2.managerRoleName" . }}
 spec:
   replicas: {{ default 1 .Values.replicaCount }}
   selector:

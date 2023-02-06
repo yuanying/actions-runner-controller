@@ -130,33 +130,10 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - persistentvolumeclaims
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - ""
-  resources:
   - namespaces/status
   - pods/status
   verbs:
   - get
-- apiGroups:
-  - ""
-  resources:
-  - persistentvolumes
-  verbs:
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
 - apiGroups:
   - ""
   resources:
@@ -239,12 +216,3 @@ rules:
   - get
   - list
   - watch
-- apiGroups:
-  - "batch"
-  resources:
-  - jobs
-  verbs:
-  - get
-  - list
-  - create
-  - delete
